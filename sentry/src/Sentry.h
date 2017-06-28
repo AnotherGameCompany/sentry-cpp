@@ -8,6 +8,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <json/json.h>
+#include <regex>
 
 
 class Sentry
@@ -21,28 +22,24 @@ private:
   
   static std::string project_id;
   
-  static int timeout; //curl超时时间
+  static int timeout; 
   
   CURL *curl;
   
-  Json::Value data; //发送数据的json
+  Json::Value data; 
   
   struct curl_slist *headers;
   
-  std::string uuid4(); //产生一个32位的uuid
+  std::string uuid4(); 
   
-  int captureMessage(std::string,
+  void captureMessage(std::string,
                      std::string,
                      std::string,
-                     void* extra_data=NULL); //发送消息
+                     void* extra_data=NULL); 
 
-  //文件名
   const char *_file;
-  //文件行数
   int _line;
-  //当前函数名
   const char *_function;
-  //完整的函数头信息
   const char *_function_header;
 
 public:
@@ -50,18 +47,18 @@ public:
   
   ~Sentry();
 
-  bool error(const char *title, const char *message=NULL, void *extra=NULL);
+  void error(const char *title, const char *message=NULL, void *extra=NULL);
 
-  bool warn (const char *title, const char *message=NULL, void *extra=NULL);
+  void warn (const char *title, const char *message=NULL, void *extra=NULL);
 
-  bool info (const char *title, const char *message=NULL, void *extra=NULL);
+  void info (const char *title, const char *message=NULL, void *extra=NULL);
   
-  bool debug(const char *title, const char *message=NULL, void *extra=NULL);
+  void debug(const char *title, const char *message=NULL, void *extra=NULL);
 
-  static int init(std::string,int _timeout=2);
+  static void init(std::string,int _timeout=2);
 };
 
 /// Helper macro to get file name and line number.
-#define SENTRY (Sentry(__FILE__, __LINE__,__func__,__PRETTY_FUNCTION__))
+#define SENTRY (Sentry(__FILE__, __LINE__,__func__,__FUNCSIG__))
 
 #endif //__SENTRY_H_
